@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block  spotify %}
+
+{%if searched_users %}
+{% for each_searched_user in searched_user %}
+    <br/>{% for liked_songs in each_searched_user.liked_songs.all %}{{liked_songs}}<br/>
+{% endfor %}
+
+{% endfor %}
+{% endif %}
+{% endblock %}
+

@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+
+{% block spotify %}
+
+<a href="{% url 'logout'}">Logout</a>
+
+<p>Welcome</p>
+<form id="search" method="GET" action="{% url 'results' %}" placeholder= "Choose a friend" autocomplete="off">
+{{form}}
+<input type="submit" value="search" name="search">
+</form>
+
+<a href="{% url 'liked' %}"> View Liked Songs</a>
+{% endblock %}
+
+
+

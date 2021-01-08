@@ -1,0 +1,19 @@
+<div id="container">
+</div>
+
+ <button id=likedsongsbutton>View liked songs</button>
+ <script>
+var request = new XMLHttpRequest();
+const container= document.getElementById("container")
+request.onload = function() {
+if (this.status == 200) {
+    document.querySelector("#likedsongsbutton").addEventListener("click", 
+    () => container.innerHTML = request.responseText
+    );}
+else{
+    console.warn("error");
+}};
+request.open('GET', '{% url "login" %}', true);
+request.send();
+</script>
+{% endblock %}

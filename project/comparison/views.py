@@ -1,9 +1,5 @@
-<<<<<<< HEAD
-
-=======
->>>>>>> b54d9c04 (slight changes)
 from spotipy import Spotify
-from spotipy import SpotifyException
+from spotipy import SpotifyException , SpotifyOauthError
 from spotipy.oauth2 import SpotifyOAuth
 from django.shortcuts import redirect , render
 from .authentication import oauth, uuid, session_cache_path
@@ -11,13 +7,23 @@ from django.http import HttpResponse
 from django.urls import reverse
 from django.http import JsonResponse
 import json
-from .models import UserProfile , Album, Song
+from .models import UserProfile , Album, Song, Relationship
 from django.contrib.auth.models import User
 import uuid as module_uuid
 import os
 from django.contrib.auth import authenticate, login
+from .forms import Form
+from django.contrib.auth.decorators import login_required
+from django.template.loader import render_to_string
 
-#Assign uuid to individual user
+#Home Page
+def home(request):
+    return render(
+### Yet to do this
+    )
+
+
+# Assign uuid to individual user
 def login(request):
     if not request.session.get("uuid"):
        request.session["uuid"] = uuid
@@ -28,30 +34,42 @@ def login(request):
 def callback(request):
     if "code" in request.GET:
         # Step 3. Being redirected from Spotify auth page
-        oauth.get_access_token(request.GET.get("code"))
+        access_token = oauth.get_access_token(request.GET.get("code"))
+        request.session["access_token"] = access_token
+        sp = Spotify(auth_manager=oauth)
+        spotify_user = sp.current_user()
+        user__ = User.objects.get_or_create(username=spotify_user['display_name'])[0]
+        userprofile = UserProfile.objects.get_or_create(user=user__)[0]
+        request.session["username"] = user__.username
+        form = Form
         return render(
-        request, "try.html"
-        )
-        
+        request, "index.html", {
+            "form":form
+        })
+
+    else:
+        return redirect(reverse("login"))
+    
 
     if not oauth.get_cached_token():
     # Step 2. Display sign in link when no token
         auth_url = oauth.get_authorize_url()
         return redirect(reverse("login"))
 
-   
+
+
+# To get user's Spotify liked songs 
 def liked(request):
 
+    # authenticate user
+    if 'uuid' not in request.session:
+        print("uuid not in session, redirecting to login")
+        return redirect(reverse("login"))
     try:
         sp = Spotify(auth_manager=oauth)
         liked = sp.current_user_saved_tracks(limit=30)['items']
-        spotify_user = sp.current_user()
-        user__ , created = User.objects.get_or_create(username=spotify_user['uri'], first_name=spotify_user["display_name"])
-        userprofile = UserProfile.objects.get_or_create(user=user__)[0]
-            
-
+        user = User.objects.get(username = request.session["username"])
         a = []
-
         for idx, item in enumerate(liked):
             track = item['track']["name"]
             artist= item["track"]["artists"][0]["name"]
@@ -68,22 +86,42 @@ def liked(request):
             artiste_name = artist,
             album = album)
 
-            songs_available = userprofile.liked_songs.all()
-
-            if song in songs_available:
-                continue
-
-            else:
-                user__.userprofile.liked_songs.add(song)
+            user.userprofile.liked_songs.add(song)
         
         return HttpResponse("<br>".join(a))
 
     except SpotifyException:
         return redirect(reverse("sign_out"))
 
+
+
+#Create view to handle friendships
+
+def add(request, name):
+    user = User.objects.get(username = request.session["username"])
+    from_person = user.userprofile
+
+    user2 = User.objects.get(username= name)
+    to_person= user2.userprofile
+    Relationship.objects.get_or_create(
+            from_person=from_person,
+            to_person= to_person,
+            status = 1
+            )
+    
+    from_user_liked_songs = from_person.liked_songs.all()
+    to_user_liked_songs = to_person.liked_songs.all()
+    count = from_user_liked_songs&to_user_liked_songs
+    display_count = count.count()
+    return HttpResponse(display_count)
+
+
+
+
+
+# Unfinished logic
 def sign_out(request):
     try:
-        # Remove the CACHE file (.cache-test) so that a new user can authorize.
         os.remove(session_cache_path(uuid))
         request.session.flush()
     except OSError as e:
@@ -91,34 +129,19 @@ def sign_out(request):
 
     return redirect(reverse("home"))
 
-def current_user(request):
-    if not oauth.get_cached_token():
-        return redirect(reverse("login"))
-    sp = Spotify(auth_manager=oauth)
-    current_user= sp.current_user()
-    return HttpResponse(f"Welcome,{current_user['display_name']}")
 
-
-def home(request): 
-    return render(request, 
-        template_name= "display.html"
-    )
-
-
-<<<<<<< HEAD
-def match(request):
-    user1=UserProfile.objects.get(id=2)
-    user2=UserProfile.objects.get(id=1)
-    q1= user1.liked_songs.all()
-    q2=user2.liked_songs.all()
-    q4 = q1&q2
-    match= q4.count()
-
-    return HttpResponse(str(match))
-=======
-
-
-
->>>>>>> b54d9c04 (slight changes)
+# Implement search for friends.
+def results(request):
+    if request.method == "GET":
+        search_query = request.GET.get("username")
+        searched_user = UserProfile.objects.filter(
+                user__username__contains=search_query
+            )
+        
+        return render(request,
+        "user_search.html", {
+            "searched_users":searched_user
+        })
+        
     
 

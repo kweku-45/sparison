@@ -1,21 +1,3 @@
-<<<<<<< HEAD
-from spotipy.oauth2 import SpotifyOAuth
-from django.conf import settings
-
-oauth = SpotifyOAuth(
-    redirect_uri="http://127.0.0.1:8000/spotify/authorize",
-    scope='user-library-read'
-)
-
-
-# oauth2 =  SpotifyOAuth(
-#     redirect_uri="http://127.0.0.1:8000/spotify/authorize",
-    
-# )
-
-authorize_url = oauth.get_authorize_url()
- 
-=======
 from django.conf import settings
 import os
 from spotipy.oauth2 import SpotifyOAuth
@@ -46,4 +28,3 @@ oauth = SpotifyOAuth(
 
 
 
->>>>>>> b54d9c04 (slight changes)

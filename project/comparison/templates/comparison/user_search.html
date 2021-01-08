@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block  spotify %}
+<h1>Your Search Returned:</h1>
+<div>
+{% for user in searched_users %}
+  <p>{{ user.user.username }}</p>
+</div>
+<a href="{% url 'add' name=user.user.username %}">ADD</a>
+{% endfor %}
+{% endblock %}
+
+  
