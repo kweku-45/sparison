@@ -6,21 +6,21 @@ from .authentication import oauth, uuid, session_cache_path
 from django.http import HttpResponse
 from django.urls import reverse
 from django.http import JsonResponse
-import json
 from .models import UserProfile , Album, Song, Relationship
 from django.contrib.auth.models import User
 import uuid as module_uuid
 import os
 from django.contrib.auth import authenticate, login
 from .forms import Form
-from django.contrib.auth.decorators import login_required
-from django.template.loader import render_to_string
+from .methods import perform_match, follow_back
+
 
 #Home Page
 def home(request):
     return render(
 ### Yet to do this
     )
+
 
 
 # Assign uuid to individual user
@@ -109,17 +109,17 @@ def add(request, name):
             status = 1
             )
     
-    from_user_liked_songs = from_person.liked_songs.all()
-    to_user_liked_songs = to_person.liked_songs.all()
-    count = from_user_liked_songs&to_user_liked_songs
-    display_count = count.count()
-    return HttpResponse(display_count)
+    return HttpResponse("added")
 
 
+# def show_friends(request, username):
+#     user = User.objects.get(username = request.session["username"])
+#     user_profile = user.userprofile
+#     rel = userprofile.relationships.filter(
+#         to_people__from_person=user_profile)
+    
 
-
-
-# Unfinished logic
+# Sign Out
 def sign_out(request):
     try:
         os.remove(session_cache_path(uuid))
@@ -130,7 +130,7 @@ def sign_out(request):
     return redirect(reverse("home"))
 
 
-# Implement search for friends.
+#Implement search for friends.
 def results(request):
     if request.method == "GET":
         search_query = request.GET.get("username")
@@ -142,6 +142,22 @@ def results(request):
         "user_search.html", {
             "searched_users":searched_user
         })
+
+#Perform calculation if both users follow each other
+def match(request, name):
+    user_1= User.objects.get(username = request.session["username"])
+    user1= user_1.userprofile
+    user_2= User.objects.get(username= name)
+    user2= user_2.userprofile
+    if follow_back(user1, user2):
+        score = perform_match(user1, user2)
+        return HttpResponse(score)
+    else:
+        return HttpResponse("m")
+
+    
+
+
         
     
 

@@ -8,5 +8,5 @@ urlpatterns = [
     path("sign_out/", views.sign_out, name="sign_out"),
     path("callback/", views.callback, name="callback"),
     path("results/", views.results, name="results"),
-    path("add/<name>", views.add , name="add")
-]
+    path("add/<name>", views.add , name="add"),
+    path("match/<name>", views.match, name="match")]
