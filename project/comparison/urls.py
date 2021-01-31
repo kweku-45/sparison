@@ -10,3 +10,4 @@ urlpatterns = [
     path("results/", views.results, name="results"),
     path("add/<name>", views.add , name="add"),
     path("match/<name>", views.match, name="match")]
+

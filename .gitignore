@@ -1,0 +1,6 @@
+
+.env
+.spotify_caches.*
+.vscode/
+Include/
+Lib/

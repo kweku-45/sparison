@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block  spotify %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet"/>
+<header>
+    <div class="container">
+      <h1>Logo</h1>
+      <div id= right>Login</div>
+    </div>
+  </header>
+
+<style>
+    .main {
+        display: flex;
+      }
+      
+    .main > h1 {
+        flex: 1;
+      }
+      * {
+        margin: 0;
+        padding: 0; 
+      }
+      
+      header{
+        background-color:rgb(30, 215, 96);
+      }
+      
+      .container {
+        display: flex;
+        align-items: center;
+        margin: 0 auto;
+        max-width: 800px;
+      }
+      
+    #right{
+
+      }
+ </style>
+</html>
+
+{% endblock %}

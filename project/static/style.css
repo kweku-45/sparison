@@ -1,0 +1,15 @@
+#nav{
+    background-color:#F0D5AA;
+    }
+#nav ul {
+    list-style-type:none;
+    padding-top:3px;
+    padding-bottom:3px;
+    }
+#nav ul li {
+    display:inline;
+    }
+#nav a:link, a:visited {
+    text-align:center;
+    padding:3px;
+    }

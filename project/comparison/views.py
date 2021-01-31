@@ -15,13 +15,10 @@ from .forms import Form
 from .methods import perform_match, follow_back
 
 
-#Home Page
+# Homepage
 def home(request):
-    return render(
-### Yet to do this
-    )
-
-
+    return render(request, "home.html"
+)
 
 # Assign uuid to individual user
 def login(request):
@@ -32,45 +29,39 @@ def login(request):
     
 
 def callback(request):
-    if "code" in request.GET:
-        # Step 3. Being redirected from Spotify auth page
-        access_token = oauth.get_access_token(request.GET.get("code"))
-        request.session["access_token"] = access_token
-        sp = Spotify(auth_manager=oauth)
-        spotify_user = sp.current_user()
-        user__ = User.objects.get_or_create(username=spotify_user['display_name'])[0]
-        userprofile = UserProfile.objects.get_or_create(user=user__)[0]
-        request.session["username"] = user__.username
-        form = Form
-        return render(
-        request, "index.html", {
-            "form":form
-        })
+    # get authorization code from URL and use code to get access token from Spotify
+    try:
+        if "code" in request.GET:
+            access_token = oauth.get_access_token(request.GET.get("code"))
+            request.session["access_token"] = access_token
+            sp = Spotify(auth_manager=oauth)
+            spotify_user = sp.current_user()
+            user__ = User.objects.get_or_create(username=spotify_user['display_name'])[0]
+            userprofile = UserProfile.objects.get_or_create(user=user__)[0]
+            request.session["username"] = user__.username
+            form = Form
+            return render(
+            request, "index.html", {
+            "form":form, "username":request.session["username"]
+            })
 
-    else:
-        return redirect(reverse("login"))
-    
-
-    if not oauth.get_cached_token():
-    # Step 2. Display sign in link when no token
-        auth_url = oauth.get_authorize_url()
-        return redirect(reverse("login"))
+    except SpotifyOauthError:
+            return redirect(reverse("login"))
 
 
 
 # To get user's Spotify liked songs 
 def liked(request):
 
-    # authenticate user
+    #authenticate user by crosschecking UUID code
     if 'uuid' not in request.session:
-        print("uuid not in session, redirecting to login")
         return redirect(reverse("login"))
     try:
         sp = Spotify(auth_manager=oauth)
-        liked = sp.current_user_saved_tracks(limit=30)['items']
+        liked = sp.current_user_saved_tracks(limit=100)['items']
         user = User.objects.get(username = request.session["username"])
         a = []
-        for idx, item in enumerate(liked):
+        for idx, item  in enumerate(liked):
             track = item['track']["name"]
             artist= item["track"]["artists"][0]["name"]
             album_ = item["track"]["album"]["name"]
@@ -85,7 +76,7 @@ def liked(request):
             song, created = Song.objects.get_or_create(track_name = track,
             artiste_name = artist,
             album = album)
-
+ 
             user.userprofile.liked_songs.add(song)
         
         return HttpResponse("<br>".join(a))
@@ -95,8 +86,8 @@ def liked(request):
 
 
 
-#Create view to handle friendships
 
+#handling friendship relations
 def add(request, name):
     user = User.objects.get(username = request.session["username"])
     from_person = user.userprofile
@@ -109,7 +100,7 @@ def add(request, name):
             status = 1
             )
     
-    return HttpResponse("added")
+    return HttpResponse (f"{from_person.username} added {to_person.username}")
 
 
 # def show_friends(request, username):
@@ -126,7 +117,6 @@ def sign_out(request):
         request.session.flush()
     except OSError as e:
         print ("Error: %s - %s." % (e.filename, e.strerror))
-
     return redirect(reverse("home"))
 
 
@@ -147,13 +137,13 @@ def results(request):
 def match(request, name):
     user_1= User.objects.get(username = request.session["username"])
     user1= user_1.userprofile
-    user_2= User.objects.get(username= name)
+    user_2= User.objects.get(username=name)
     user2= user_2.userprofile
     if follow_back(user1, user2):
         score = perform_match(user1, user2)
         return HttpResponse(score)
     else:
-        return HttpResponse("m")
+        return HttpResponse("You two don't follow each othe")
 
     
 
