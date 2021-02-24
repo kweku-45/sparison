@@ -1,0 +1,1 @@
+git rm --cached `git ls-files -i -X .gitignore` - "remove files from remote repo based on gitignore"

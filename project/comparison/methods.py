@@ -21,8 +21,6 @@ def check_following1(user1,user2):
     return rel.filter(pk = user2.id).exists()
      
    
-
-
 # Check if other user follows back  
 def check_following2(user1 , user2):
     rel = user2.relationships.filter(

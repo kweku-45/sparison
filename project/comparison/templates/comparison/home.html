@@ -3,41 +3,25 @@
 {% block  spotify %}
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet"/>
-<header>
-    <div class="container">
-      <h1>Logo</h1>
-      <div id= right>Login</div>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap">
+
+<div class="container">
+    <div class="navbar">
+      <img src="images/logo.png" class="logo">
+      <nav>
+          <ul>
+              <li><a href="{% url 'home' %}"><i class="fas fa-home"></i> Home</a></li>
+              <li><a href="{% url 'login' %}"><i class="fas fa-sign-in-alt"></i> Login</a></li>
+          </ul>
+      </nav>
+  </div>
+</div>
+
+<div class="row">
+    <div class="col">
+      <h1>SPARISON</h1>
+      <P>Music Matching With Love ❤️ </P>
     </div>
-  </header>
-
-<style>
-    .main {
-        display: flex;
-      }
-      
-    .main > h1 {
-        flex: 1;
-      }
-      * {
-        margin: 0;
-        padding: 0; 
-      }
-      
-      header{
-        background-color:rgb(30, 215, 96);
-      }
-      
-      .container {
-        display: flex;
-        align-items: center;
-        margin: 0 auto;
-        max-width: 800px;
-      }
-      
-    #right{
-
-      }
- </style>
-</html>
-
+</div>
 {% endblock %}
+

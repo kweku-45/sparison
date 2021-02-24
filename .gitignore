@@ -1,6 +1,8 @@
-
+.cfg
 .env
-.spotify_caches.*
+.spotify_caches*
 .vscode/
 Include/
 Lib/
+Scripts/
+spotipy/
