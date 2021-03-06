@@ -3,7 +3,7 @@ from spotipy.cache_handler import CacheFileHandler,CacheHandler
 from spotipy import SpotifyException , SpotifyOauthError
 from spotipy.oauth2 import SpotifyOAuth
 from django.shortcuts import redirect , render
-from .authentication import session_cache_path, extract_uuid, oauth, cache_handler
+from .authentication import session_cache_path, extract_uuid, oauth, cache_handler, cache_path
 from django.http import HttpResponse
 from django.urls import reverse
 from django.http import JsonResponse
@@ -17,7 +17,7 @@ from .methods import perform_match, follow_back
 
 
 
-# Homepage
+#Homepage
 def home(request):
     return render(request, "home.html"
 )
@@ -25,7 +25,7 @@ def home(request):
 # Assign uuid to individual user
 def login(request):
     if not request.session.get("uuid"):
-        request.session["uuid"] = extract_uuid
+        request.session["uuid"] = extract_uuid(cache_path)
     auth_url = oauth.get_authorize_url()
     return redirect(auth_url)
 
@@ -56,7 +56,7 @@ def callback(request):
 def liked(request):
      #authenticate user by crosschecking UUID code
     if 'uuid' not in request.session:
-        return redirect(reverse("login"))
+        return render(reverse("login"))
     try:
         sp = Spotify(auth_manager=oauth)
         liked = sp.current_user_saved_tracks(limit=40)['items']
@@ -88,12 +88,15 @@ def add(request, name):
     from_person = user.userprofile
     user2 = User.objects.get(username= name)
     to_person= user2.userprofile
-    Relationship.objects.get_or_create(
+    relationship = Relationship.objects.get_or_create(
             from_person=from_person,
             to_person= to_person,
             status = 1
             )
-    return HttpResponse (f" added {user2.username}")
+    if not relationship[1]:
+        return HttpResponse("You are already friends")
+    else:
+        return HttpResponse (f" added {user2.username}")
 
 
 #Sign Out
@@ -102,9 +105,7 @@ def sign_out(request):
         os.remove(f"./.spotify_caches/{uuid}")
         request.session.flush()
         return redirect(reverse("home"))
-    #except OSError as e:
-        #return HttpResponse("error")
-        # print ("Error: %s - %s." % (e.filename, e.strerror))
+
     
 #Implement search for friends.
 def results(request):
